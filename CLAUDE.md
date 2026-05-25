@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a React frontend application for "QuizAI" — an evaluation/quiz system. The app provides authentication with role-based access (docente/estudiante) and different dashboards for teachers and students.
+This is a React frontend application for "QuizAI" — an evaluation/quiz system. The app provides authentication with role-based access (Docente/estudiante) and different dashboards for teachers and students.
 
 ## Common Commands
 
@@ -47,7 +47,7 @@ The app uses React Router v7 for navigation with the following route structure:
 - `/teacher/create` → Create quiz form
 
 ### Pages (src/pages/)
-- `src/pages/auth/Login.jsx` — Login form with role selection (docente/estudiante)
+- `src/pages/auth/Login.jsx` — Login form with role selection (Docente/Estudiante)
 - `src/pages/teacher/TeacherDashboard.jsx` — Teacher dashboard with quiz list, search, and sidebar
 - `src/pages/teacher/QuizDetail.jsx` — Quiz detail with question editing (add/edit/delete)
 - `src/pages/teacher/CreateQuiz.jsx` — Create quiz form with file upload

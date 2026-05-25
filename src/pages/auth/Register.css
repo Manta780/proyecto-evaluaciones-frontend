@@ -1,4 +1,4 @@
-.login-container {
+.register-container {
   min-height: 100vh;
   display: flex;
   align-items: center;
@@ -6,7 +6,7 @@
   background-color: #0f1117;
 }
 
-.login-card {
+.register-card {
   background-color: #1a1d27;
   border: 1px solid #2a2d3e;
   border-radius: 16px;
@@ -18,32 +18,32 @@
   gap: 20px;
 }
 
-.login-title {
+.register-title {
   font-size: 32px;
   font-weight: 700;
   color: #7c6af7;
   text-align: center;
 }
 
-.login-subtitle {
+.register-subtitle {
   text-align: center;
   color: #888;
   font-size: 14px;
   margin-top: -12px;
 }
 
-.login-field {
+.register-field {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-.login-field label {
+.register-field label {
   font-size: 14px;
   color: #aaa;
 }
 
-.login-field input {
+.register-field input {
   background-color: #0f1117;
   border: 1px solid #2a2d3e;
   border-radius: 8px;
@@ -54,7 +54,7 @@
   transition: border 0.2s;
 }
 
-.login-field input:focus {
+.register-field input:focus {
   border-color: #7c6af7;
 }
 
@@ -80,13 +80,13 @@
   color: #fff;
 }
 
-.login-error {
+.register-error {
   color: #ff6b6b;
   font-size: 13px;
   text-align: center;
 }
 
-.login-submit {
+.register-submit {
   background-color: #7c6af7;
   color: white;
   border: none;
@@ -95,28 +95,29 @@
   font-size: 16px;
   font-weight: 600;
   transition: background 0.2s;
+  cursor: pointer;
 }
 
-.login-submit:hover {
+.register-submit:hover {
   background-color: #6a57e0;
 }
 
-.login-submit:disabled {
+.register-submit:disabled {
   background-color: #555;
   cursor: not-allowed;
 }
 
-.login-register {
+.register-login {
   text-align: center;
   color: #888;
   font-size: 14px;
 }
 
-.login-register span {
+.register-login span {
   color: #7c6af7;
   cursor: pointer;
 }
 
-.login-register span:hover {
+.register-login span:hover {
   text-decoration: underline;
 }
