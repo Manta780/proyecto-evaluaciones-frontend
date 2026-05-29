@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './CreateQuiz.css';
 
@@ -6,6 +6,7 @@ function CreateQuiz() {
   const navigate = useNavigate();
   const [archivo, setArchivo] = useState(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [form, setForm] = useState({
     titulo: '',
     descripcion: '',
@@ -15,6 +16,18 @@ function CreateQuiz() {
     grado: '',
     longitud: '',
   });
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const cerrarSidebar = () => {
+    if (isMobile && !sidebarCollapsed) {
+      setSidebarCollapsed(true);
+    }
+  };
 
   const handleChange = (field, value) => {
     setForm({ ...form, [field]: value });
@@ -35,7 +48,7 @@ function CreateQuiz() {
   };
 
   return (
-    <div className="dashboard-container">
+    <div className="dashboard-container" onClick={cerrarSidebar}>
 
       {/* Sidebar */}
       <aside className={`sidebar ${sidebarCollapsed ? 'collapsed' : ''}`}>

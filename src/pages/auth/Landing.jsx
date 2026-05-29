@@ -17,7 +17,7 @@ function Landing() {
           </button>
           <button
             className="landing-btn-primary"
-            onClick={() => navigate('/register')}
+            onClick={() => navigate('/plans')}
           >
             Registrarse
           </button>

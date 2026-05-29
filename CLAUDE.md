@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a React frontend application for "QuizAI" — an evaluation/quiz system. The app provides authentication with role-based access (Docente/estudiante) and different dashboards for teachers and students.
+"QuizAI" — A React-based quiz/evaluation system with role-based access (Docente/Estudiante) and Firebase authentication.
 
 ## Common Commands
 
@@ -17,64 +17,67 @@ npm run build        # Build for production
 
 ## Architecture
 
-The app uses React Router v7 for navigation with the following route structure:
+React Router v7 handles navigation. The app uses a `ProtectedRoute` component to enforce role-based access.
+
+### Routes
 
 | Route | Component | Description |
 |-------|-----------|-------------|
-| `/` | Redirect | Redirects to `/login` |
-| `/login` | `Login` | Login page with email/password and role selection |
-| `/teacher/dashboard` | `TeacherDashboard` | Teacher dashboard with quiz list |
-| `/teacher/quiz/:id` | `QuizDetail` | Quiz detail with question editing |
-| `/teacher/create` | `CreateQuiz` | Create new quiz form |
-| `/student/dashboard` | — | Not yet implemented |
+| `/` | `Landing` | Public landing page |
+| `/login` | `Login` | Login with Firebase Auth |
+| `/register` | `Register` | Registration page |
+| `/plans` | `Plans` | Subscription plans |
+| `/teacher/dashboard` | `TeacherDashboard` | Teacher quiz list |
+| `/teacher/quiz/:id` | `QuizDetail` | Question editor |
+| `/teacher/quiz/:id/dashboard` | `QuizDashboard` | Quiz results/stats |
+| `/teacher/create` | `CreateQuiz` | New quiz form |
+| `/student/dashboard` | placeholder | Student view (not implemented) |
 
-**Entry point**: `src/index.js` → `src/App.js`
+### Directory Structure
 
-**Page structure**: `src/pages/{role}/{PageName}.jsx`
+```
+src/
+├── App.js                    # Main router setup
+├── index.js                  # Entry point
+├── index.css                 # Global dark theme
+├── components/
+│   └── ProtectedRoute.jsx     # Role-based route guard
+├── hooks/
+│   └── useAuth.js            # Auth state hook (localStorage + Firebase token)
+├── services/
+│   ├── api.js                # Axios HTTP client (ready for API)
+│   └── firebase.js           # Firebase config
+└── pages/
+    └── {role}/
+        └── {PageName}.jsx    # Route components + CSS
+```
 
-**Dependencies**:
-- `react` & `react-dom` (^19.2.6)
-- `react-router-dom` (^7.15.0) — routing
-- `axios` (^1.16.0) — HTTP client (ready for API integration)
+### Authentication Flow
 
-## Key Files
+1. User logs in via Firebase Auth (Email/Password)
+2. Firebase token stored in `localStorage.firebaseToken`
+3. User profile stored in `localStorage.userProfile`
+4. `useAuth` hook checks localStorage on mount to restore session
+5. `ProtectedRoute` checks `user.role` against `requiredRole`
 
-### Routes (src/App.js)
-- `/` → Redirect to `/login`
-- `/login` → Login page
-- `/teacher/dashboard` → Teacher dashboard
-- `/teacher/quiz/:id` → Quiz detail view
-- `/teacher/create` → Create quiz form
+## Dependencies
 
-### Pages (src/pages/)
-- `src/pages/auth/Login.jsx` — Login form with role selection (Docente/Estudiante)
-- `src/pages/teacher/TeacherDashboard.jsx` — Teacher dashboard with quiz list, search, and sidebar
-- `src/pages/teacher/QuizDetail.jsx` — Quiz detail with question editing (add/edit/delete)
-- `src/pages/teacher/CreateQuiz.jsx` — Create quiz form with file upload
-
-### Styles
-- `src/index.css` — Global styles (dark theme)
-- Each page imports its own CSS (e.g., `Login.css`, `TeacherDashboard.css`)
+- `react` / `react-dom` (^19.2.6)
+- `react-router-dom` (^7.15.0)
+- `axios` (^1.16.0) — for API calls
+- `firebase` (^12.13.0) — authentication
 
 ## Current State
 
-- **Login**: Functional mock login with role selection
-- **Teacher Dashboard**: Displays quiz list with search, sidebar with collapse toggle, dropdown actions
-- **Quiz Detail**: View/edit questions, add new questions, save changes
-- **Create Quiz**: Form with file upload, quiz settings (tipo, dificultad, grado, longitud)
-- **Student Dashboard**: Not yet implemented (route exists but no component)
+- **Auth**: Firebase Auth with Register/Login pages, subscription plans page
+- **Teacher Dashboard**: Quiz list with search, sidebar, dropdown actions
+- **Quiz Detail**: Question CRUD (add/edit/delete)
+- **Create Quiz**: Form with file upload, settings (tipo, dificultad, grado, longitud)
+- **Quiz Dashboard**: Results/stats view for a quiz
+- **Student Dashboard**: Placeholder only
 
 ## Known Gaps
 
-- Student dashboard component not implemented
-- CSS files may need to be created for each page component
-- No actual API integration (all data is hardcoded)
-- No authentication (mock login only)
-- Quiz data lost on page refresh (uses location.state)
-
-## Development Notes
-
-- All pages use a common layout with collapsible sidebar
-- Dark theme applied globally in `index.css`
-- Uses `react-router-dom` v7 hooks: `useNavigate`, `useLocation`, `useParams`
-- Form validation uses basic required field checks
+- No real API integration (axios ready but no backend connected)
+- Quiz data stored in location.state (lost on refresh)
+- Student dashboard component needs implementation

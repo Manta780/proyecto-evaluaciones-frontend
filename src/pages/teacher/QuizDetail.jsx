@@ -1,36 +1,44 @@
-import { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useLocation, useParams } from 'react-router-dom';
+import { useQuizData } from '../../hooks/useQuizData';
 import './QuizDetail.css';
-
-const preguntasEjemplo = [
-  {
-    id: 1,
-    pregunta: '¿En qué año comenzó la Segunda Guerra Mundial?',
-    opciones: ['A) 1935', 'B) 1939', 'C) 1941', 'D) 1945'],
-    respuesta_correcta: 'B) 1939',
-  },
-  {
-    id: 2,
-    pregunta: '¿Quién lideró las fuerzas aliadas en Europa?',
-    opciones: ['A) Churchill', 'B) Roosevelt', 'C) Eisenhower', 'D) De Gaulle'],
-    respuesta_correcta: 'C) Eisenhower',
-  },
-];
 
 function QuizDetail() {
   const navigate = useNavigate();
   const location = useLocation();
-  const quiz = location.state?.quiz || { titulo: 'Quiz de Historia', descripcion: 'Preguntas sobre la Segunda Guerra Mundial', preguntas: 10, codigo: 'ABC123' };
+  const { id } = useParams();
+  const { getQuizById, updateQuiz } = useQuizData();
 
-  const [preguntas, setPreguntas] = useState(preguntasEjemplo);
+  const quiz = location.state?.quiz || getQuizById(parseInt(id)) || {
+    titulo: 'Nuevo Quiz',
+    descripcion: '',
+    codigo: 'SIN-CODIGO',
+    preguntas: []
+  };
+
+  const [preguntas, setPreguntas] = useState(quiz.preguntas || []);
   const [editandoId, setEditandoId] = useState(null);
   const [agregandoNueva, setAgregandoNueva] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const [toast, setToast] = useState(null);
   const [nuevaPregunta, setNuevaPregunta] = useState({
     pregunta: '',
     opciones: ['', '', '', ''],
     respuesta_correcta: '',
   });
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const cerrarSidebar = () => {
+    if (isMobile && !sidebarCollapsed) {
+      setSidebarCollapsed(true);
+    }
+  };
 
   const handleEditChange = (id, field, value) => {
     setPreguntas(prev =>
@@ -67,11 +75,24 @@ function QuizDetail() {
   };
 
   const guardarCambios = () => {
-    alert('Cambios guardados correctamente.');
+    updateQuiz(quiz.id, { preguntas });
+    setToast('Cambios guardados correctamente.');
+    setTimeout(() => setToast(null), 3000);
+  };
+
+  const mostrarToast = (mensaje) => {
+    setToast(mensaje);
+    setTimeout(() => setToast(null), 3000);
+  };
+
+  const eliminarPregunta = (id, e) => {
+    e.stopPropagation();
+    setPreguntas(prev => prev.filter(p => p.id !== id));
+    mostrarToast('Pregunta eliminada');
   };
 
   return (
-    <div className="dashboard-container">
+    <div className="dashboard-container" onClick={cerrarSidebar}>
 
       {/* Sidebar */}
       <aside className={`sidebar ${sidebarCollapsed ? 'collapsed' : ''}`}>
@@ -109,7 +130,7 @@ function QuizDetail() {
         <div className="detail-main">
           <h2 className="detail-title">{quiz.titulo}</h2>
           <p className="quiz-desc">{quiz.descripcion}</p>
-          <p className="quiz-count">{quiz.preguntas} preguntas • Código: {quiz.codigo}</p>
+          <p className="quiz-count">{preguntas.length} preguntas • Código: {quiz.codigo}</p>
 
           <div className="preguntas-lista">
             {preguntas.map((p, index) => (
@@ -141,13 +162,19 @@ function QuizDetail() {
                       value={p.respuesta_correcta}
                       onChange={e => handleEditChange(p.id, 'respuesta_correcta', e.target.value)}
                     >
+                      <option value="">Seleccionar...</option>
                       {p.opciones.map((op, i) => (
                         <option key={i} value={op}>{op}</option>
                       ))}
                     </select>
-                    <button className="btn-cerrar" onClick={() => setEditandoId(null)}>
-                      Cerrar
-                    </button>
+                    <div className="edit-actions">
+                      <button className="btn-eliminar" onClick={(e) => eliminarPregunta(p.id, e)}>
+                        🗑️ Eliminar
+                      </button>
+                      <button className="btn-cerrar" onClick={() => setEditandoId(null)}>
+                        Cerrar
+                      </button>
+                    </div>
                   </div>
                 ) : (
                   <div className="pregunta-vista">
@@ -224,6 +251,13 @@ function QuizDetail() {
           </div>
         </div>
       </main>
+
+      {/* Toast notification */}
+      {toast && (
+        <div className="toast">
+          {toast}
+        </div>
+      )}
     </div>
   );
 }

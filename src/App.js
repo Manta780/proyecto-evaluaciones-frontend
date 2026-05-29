@@ -5,7 +5,10 @@ import Register from './pages/auth/Register';
 import TeacherDashboard from './pages/teacher/TeacherDashboard';
 import QuizDetail from './pages/teacher/QuizDetail';
 import CreateQuiz from './pages/teacher/CreateQuiz';
+import QuizDashboard from './pages/teacher/QuizDashboard';
 import ProtectedRoute from './components/ProtectedRoute';
+import Plans from './pages/auth/Plans';
+import StudentDashboard from './pages/student/StudentDashboard';
 
 function App() {
   return (
@@ -14,6 +17,7 @@ function App() {
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/plans" element={<Plans />} />
         <Route
           path="/teacher/dashboard"
           element={
@@ -31,6 +35,14 @@ function App() {
           }
         />
         <Route
+          path="/teacher/quiz/:id/dashboard"
+          element={
+            <ProtectedRoute requiredRole="Docente">
+              <QuizDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/teacher/create"
           element={
             <ProtectedRoute requiredRole="Docente">
@@ -40,11 +52,7 @@ function App() {
         />
         <Route
           path="/student/dashboard"
-          element={
-            <ProtectedRoute requiredRole="estudiante">
-              <div>Student Dashboard (en construcción)</div>
-            </ProtectedRoute>
-          }
+          element={<StudentDashboard />}
         />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

@@ -1,36 +1,77 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useQuizData } from '../../hooks/useQuizData';
 import './TeacherDashboard.css';
 
-const quicesEjemplo = [
-  { id: 1, titulo: 'Quiz de Historia', descripcion: 'Preguntas sobre la Segunda Guerra Mundial', preguntas: 10, codigo: 'ABC123' },
-  { id: 2, titulo: 'Quiz de Matemáticas', descripcion: 'Álgebra y ecuaciones básicas', preguntas: 8, codigo: 'DEF456' },
-  { id: 3, titulo: 'Quiz de Biología', descripcion: 'Células y organismos vivos', preguntas: 12, codigo: 'GHI789' },
-];
-
 function TeacherDashboard() {
+  const navigate = useNavigate();
+  const { quizzes, deleteQuiz } = useQuizData();
+
   const [busqueda, setBusqueda] = useState('');
   const [menuAbierto, setMenuAbierto] = useState(null);
   const [vistaActual, setVistaActual] = useState('mis-quices');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const navigate = useNavigate();
+  const [toast, setToast] = useState(null);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
-  const quicesFiltrados = quicesEjemplo.filter(q =>
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const quicesFiltrados = quizzes.filter(q =>
     q.titulo.toLowerCase().includes(busqueda.toLowerCase())
   );
+
+  const mostrarToast = (mensaje) => {
+    setToast(mensaje);
+    setTimeout(() => setToast(null), 3000);
+  };
+
+  const copiarCodigo = (codigo, e) => {
+    e.stopPropagation();
+    navigator.clipboard.writeText(codigo);
+    setMenuAbierto(null);
+    mostrarToast(`Código "${codigo}" copiado al portapapeles`);
+  };
+
+  const verDashboard = (quiz, e) => {
+    e.stopPropagation();
+    setMenuAbierto(null);
+    navigate(`/teacher/quiz/${quiz.id}/dashboard`, { state: { quiz } });
+  };
 
   const toggleMenu = (id, e) => {
     e.stopPropagation();
     setMenuAbierto(menuAbierto === id ? null : id);
   };
 
-  const cerrarMenus = () => setMenuAbierto(null);
+  const eliminarQuiz = (id, e) => {
+    e.stopPropagation();
+    deleteQuiz(id);
+    setMenuAbierto(null);
+    mostrarToast('Quiz eliminado correctamente');
+  };
+
+  const cerrarMenus = () => {
+    setMenuAbierto(null);
+    if (isMobile && !sidebarCollapsed) {
+      setSidebarCollapsed(true);
+    }
+  };
 
   return (
     <div className="dashboard-container" onClick={cerrarMenus}>
 
       {/* Sidebar */}
       <aside className={`sidebar ${sidebarCollapsed ? 'collapsed' : ''}`}>
+        <button
+          className="sidebar-close-btn"
+          onClick={() => setSidebarCollapsed(true)}
+        >
+          ✕
+        </button>
         <div className="sidebar-logo">
           <span>QuizAI</span>
           <button
@@ -99,7 +140,10 @@ function TeacherDashboard() {
                       <div className="quiz-card-body">
                         <h3 className="quiz-title">{quiz.titulo}</h3>
                         <p className="quiz-desc">{quiz.descripcion}</p>
-                        <span className="quiz-count">{quiz.preguntas} preguntas</span>
+                        <div className="quiz-meta">
+                          <span className="quiz-count">{quiz.preguntas?.length || 0} preguntas</span>
+                          <span className="quiz-code">Código: <code>{quiz.codigo}</code></span>
+                        </div>
                       </div>
                       <div className="quiz-card-actions">
                         <button
@@ -110,16 +154,13 @@ function TeacherDashboard() {
                         </button>
                         {menuAbierto === quiz.id && (
                           <div className="dropdown-menu">
-                            <button onClick={() => alert('Quiz borrado')}>
+                            <button onClick={(e) => eliminarQuiz(quiz.id, e)}>
                               🗑️ Borrar quiz
                             </button>
-                            <button onClick={() => {
-                              navigator.clipboard.writeText(quiz.codigo);
-                              alert(`Código copiado: ${quiz.codigo}`);
-                            }}>
+                            <button onClick={(e) => copiarCodigo(quiz.codigo, e)}>
                               📋 Copiar código
                             </button>
-                            <button onClick={() => alert('Ver dashboard')}>
+                            <button onClick={(e) => verDashboard(quiz, e)}>
                               📊 Ver dashboard
                             </button>
                           </div>
@@ -141,6 +182,12 @@ function TeacherDashboard() {
 
         </div>
       </main>
+      {/* Toast notification */}
+      {toast && (
+        <div className="toast">
+          {toast}
+        </div>
+      )}
     </div>
   );
 }
