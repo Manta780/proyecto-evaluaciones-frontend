@@ -84,8 +84,19 @@ function TeacherDashboard() {
     }
   };
 
+  const cerrarSesion = () => {
+    localStorage.removeItem('firebaseToken');
+    localStorage.removeItem('userProfile');
+    navigate('/');
+  };
+
   return (
     <div className="dashboard-container" onClick={cerrarMenus}>
+
+      {/* Botón cerrar sesión */}
+      <button className="logout-btn" onClick={cerrarSesion}>
+        🚪 Cerrar sesión
+      </button>
 
       {/* Sidebar */}
       <aside className={`sidebar ${sidebarCollapsed ? 'collapsed' : ''}`}>

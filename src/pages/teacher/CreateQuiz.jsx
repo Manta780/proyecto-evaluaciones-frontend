@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useToast, ToastContainer } from '../../components/Toast';
@@ -12,6 +12,7 @@ function CreateQuiz() {
   const navigate = useNavigate();
   const [archivo, setArchivo] = useState(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [loading, setLoading] = useState(false);
   const { toasts, showToast, removeToast } = useToast();
   const [form, setForm] = useState({
@@ -23,6 +24,18 @@ function CreateQuiz() {
     grado: '',
     longitud: '',
   });
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const cerrarSidebar = () => {
+    if (isMobile && !sidebarCollapsed) {
+      setSidebarCollapsed(true);
+    }
+  };
 
   const handleChange = (field, value) => {
     setForm({ ...form, [field]: value });
@@ -97,7 +110,7 @@ console.log('userProfile completo:', userProfile);
   };
 
   return (
-    <div className="dashboard-container">
+    <div className="dashboard-container" onClick={cerrarSidebar}>
 
       {/* Sidebar */}
       <aside className={`sidebar ${sidebarCollapsed ? 'collapsed' : ''}`}>
