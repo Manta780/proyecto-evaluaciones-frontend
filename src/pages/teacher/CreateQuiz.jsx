@@ -1,11 +1,19 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { useToast, ToastContainer } from '../../components/Toast';
 import './CreateQuiz.css';
+import { getAuth } from 'firebase/auth';
+
+
+const API_URL = 'http://127.0.0.1:8000';
 
 function CreateQuiz() {
   const navigate = useNavigate();
   const [archivo, setArchivo] = useState(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const { toasts, showToast, removeToast } = useToast();
   const [form, setForm] = useState({
     titulo: '',
     descripcion: '',
@@ -25,13 +33,67 @@ function CreateQuiz() {
     if (file) setArchivo(file);
   };
 
-  const handleCrear = () => {
+  const handleCrear = async () => {
     if (!form.titulo || !form.descripcion || !archivo || !form.cantidad || !form.tipo) {
-      alert('Por favor completa todos los campos obligatorios.');
+      showToast('Por favor completa todos los campos obligatorios.', 'error');
       return;
     }
-    alert('Quiz creado correctamente.');
-    navigate('/teacher/dashboard');
+
+    setLoading(true);
+    try {
+      // ✅ Token fresco de Firebase
+      const auth = getAuth();
+      const firebaseToken = await auth.currentUser?.getIdToken(true);
+
+      if (!firebaseToken) {
+        showToast('No se encontró sesión activa. Inicia sesión nuevamente.', 'error');
+        setLoading(false);
+        return;
+      }
+
+      // Mapear tipo de quiz al formato del backend
+      const tipoMap = {
+        'Selección múltiple': 'opción múltiple',
+        'Abierto': 'abierta',
+        'Verdadero/Falso': 'verdadero/falso',
+        'Mixto': 'mixto'
+      };
+
+      // Mapear dificultad al formato del backend
+      const dificultadMap = {
+        'Fácil': 'Repaso',
+        'Media': 'Comprensión',
+        'Difícil': 'Análisis'
+      };
+
+      const formData = new FormData();
+      formData.append('archivo', archivo);
+      formData.append('cantidad', parseInt(form.cantidad));
+      formData.append('dificultad', dificultadMap[form.dificultad] || 'Comprensión');
+      formData.append('tipo', tipoMap[form.tipo] || 'opción múltiple');
+      formData.append('modo_limpieza', 'completa');
+      formData.append('title', form.titulo);
+      formData.append('description', form.descripcion);
+
+      const userProfile = JSON.parse(localStorage.getItem('userProfile'));
+console.log('userProfile completo:', userProfile);
+
+      const response = await axios.post(`${API_URL}/quiz/generar`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          'Authorization': `Bearer ${firebaseToken}`
+        }
+      });
+
+      console.log('Quiz creado:', response.data);
+      showToast('Quiz creado correctamente');
+      navigate('/teacher/dashboard');
+    } catch (err) {
+      console.error('Error al crear quiz:', err);
+      showToast(err.response?.data?.detail || 'Error al crear el quiz', 'error');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -205,14 +267,16 @@ function CreateQuiz() {
               <button className="btn-cancelar" onClick={() => navigate('/teacher/dashboard')}>
                 Cancelar
               </button>
-              <button className="btn-crear" onClick={handleCrear}>
-                Crear Quiz
+              <button className="btn-crear" onClick={handleCrear} disabled={loading}>
+                {loading ? 'Creando...' : 'Crear Quiz'}
               </button>
             </div>
 
           </div>
         </div>
       </main>
+
+      <ToastContainer toasts={toasts} removeToast={removeToast} />
     </div>
   );
 }

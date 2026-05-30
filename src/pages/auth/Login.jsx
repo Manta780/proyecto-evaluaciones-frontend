@@ -16,7 +16,14 @@ function Login() {
 
   const handleLogin = async () => {
     if (!email || !password || !role) {
-      setError('Por favor completa todos los campos.');
+      setError('Por favor completa todos los campos: correo, contraseña y selecciona tu rol.');
+      return;
+    }
+
+    // Validar formato de correo
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setError('El correo no tiene un formato válido. Ejemplo: correo@ejemplo.com');
       return;
     }
 
@@ -37,22 +44,15 @@ function Login() {
       const profileResponse = await fetch(`http://127.0.0.1:8000/register/firebase/${firebaseUid}`);
 
       if (!profileResponse.ok) {
-        // Si no existe en PostgreSQL, crear perfil básico
-        console.log('⚠ Perfil no encontrado en PostgreSQL, creando...');
-        const newProfile = {
-          email: email,
-          full_name: email.split('@')[0],
-          role: role,
-          firebase_uid: firebaseUid
-        };
-        localStorage.setItem('firebaseToken', firebaseToken);
-        localStorage.setItem('userProfile', JSON.stringify(newProfile));
-
-        if (role === 'Docente') {
-          navigate('/teacher/dashboard');
-        } else {
-          navigate('/student/dashboard');
+        // Verificar si es error 404 (no existe) u otro error
+        if (profileResponse.status === 404) {
+          setError('Esta cuenta no está registrada. Por favor, regístrate primero.');
+          setLoading(false);
+          return;
         }
+        // Otro error del servidor
+        setError('Error del servidor. Intenta de nuevo más tarde.');
+        setLoading(false);
         return;
       }
 
@@ -80,11 +80,17 @@ function Login() {
     } catch (err) {
       console.error('✗ Error en login:', err.message);
       if (err.code === 'auth/invalid-credential') {
-        setError('Credenciales inválidas. Verifica tu correo y contraseña.');
+        setError('Correo o contraseña incorrectos. Verifica tus credenciales e intenta de nuevo.');
       } else if (err.code === 'auth/user-not-found') {
-        setError('Usuario no encontrado. ¿Quieres registrarte?');
+        setError('No existe una cuenta con este correo. ¿Quieres registrarte?');
+      } else if (err.code === 'auth/wrong-password') {
+        setError('La contraseña es incorrecta. Intenta de nuevo.');
+      } else if (err.code === 'auth/invalid-email') {
+        setError('El formato del correo no es válido. Ingresa un correo válido.');
+      } else if (err.code === 'auth/user-disabled') {
+        setError('Esta cuenta ha sido deshabilitada. Contacta al administrador.');
       } else {
-        setError(err.message || 'Error al iniciar sesión');
+        setError(err.message || 'Error al iniciar sesión. Intenta de nuevo.');
       }
     } finally {
       setLoading(false);

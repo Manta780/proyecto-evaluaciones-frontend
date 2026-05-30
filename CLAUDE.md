@@ -78,3 +78,22 @@ The app uses React Router v7 for navigation with the following route structure:
 - Dark theme applied globally in `index.css`
 - Uses `react-router-dom` v7 hooks: `useNavigate`, `useLocation`, `useParams`
 - Form validation uses basic required field checks
+
+
+## Backend API Routes                                                                                       
+                                                                                                            
+      77 +The frontend integrates with a FastAPI backend. API base URL: `/api/quiz` (configurable)                    
+      78 +                                                                                                            
+      79 +| Endpoint | Method | Description |                                                                         
+      80 +|----------|--------|-------------|                                                                         
+      81 +| `/obtener_quiz/{quiz_id}` | GET | Get quiz by ID |                                                        
+      82 +| `/code/{access_code}` | GET | Get quiz by access code |                                                   
+      83 +| `/creator/{creator_id}` | GET | List all quizzes by creator |                                             
+      84 +| `/actualizar_quiz/{quiz_id}` | PUT | Update quiz |                                                        
+      85 +| `/eliminar_quiz/{quiz_id}` | DELETE | Delete (deactivate) quiz |                                          
+      86 +| `/question/agregar_pregunta` | POST | Add question to quiz |                                              
+      87 +| `/question/actualizar_pregunta/{question_id}` | PUT | Update question |                                   
+      88 +| `/question/eliminar_pregunta/{question_id}` | DELETE | Delete question |                                  
+      89 +| `/search/{title}?creator_id=` | GET | Search quiz by title |                                              
+      90 +                                                                                                            
+      91  ## Development Notes
