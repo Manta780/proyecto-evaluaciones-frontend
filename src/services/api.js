@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:8000/quiz';
+const API_BASE_URL = 'https://proyecto-evaluaciones.vercel.app/quiz';
 
 const api = axios.create({
   baseURL: API_BASE_URL,

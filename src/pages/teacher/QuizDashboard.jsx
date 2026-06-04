@@ -152,7 +152,7 @@ function QuizDashboard() {
     const fetchQuizResults = async () => {
       setLoading(true);
       console.log('🔍 Obteniendo resultados para quiz ID:', quizId);
-      console.log('🔍 URL completa:', `http://localhost:8000/quiz/${quizId}/results`);
+      console.log('🔍 URL completa:', `https://proyecto-evaluaciones.vercel.app/quiz/${quizId}/results`);
 
       try {
         const response = await quizAPI.getQuizResults(quizId);
