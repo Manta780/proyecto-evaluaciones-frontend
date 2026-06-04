@@ -4,7 +4,7 @@ import axios from 'axios';
 import { useToast, ToastContainer } from '../../components/Toast';
 import './TeacherDashboard.css';
 
-const API_URL = 'http://127.0.0.1:8000';
+const API_URL = 'https://proyecto-evaluaciones.vercel.app';
 
 function TeacherDashboard() {
   const [busqueda, setBusqueda] = useState('');
@@ -163,8 +163,22 @@ function TeacherDashboard() {
                 ) : quicesFiltrados.length === 0 ? (
                   <p className="no-results">No se encontraron quices.</p>
                 ) : (
-                  quicesFiltrados.map(quiz => (
-                    <div key={quiz.id} className="quiz-card">
+                  quicesFiltrados.map((quiz, index) => {
+                    // Colores para las tarjetas - efecto Liquid Glass
+                    const colors = [
+                      { primary: '#667eea', secondary: '#764ba2', accent: '#a8edea' },
+                      { primary: '#f093fb', secondary: '#f5576c', accent: '#fed1e4' },
+                      { primary: '#4facfe', secondary: '#00f2fe', accent: '#c9f0ff' },
+                      { primary: '#43e97b', secondary: '#38f9d7', accent: '#d4fceb' },
+                      { primary: '#fa709a', secondary: '#fee140', accent: '#fff6d4' },
+                      { primary: '#a18cd1', secondary: '#fbc2eb', accent: '#f5e6ff' },
+                      { primary: '#ff9a9e', secondary: '#fecfef', accent: '#fff0f0' },
+                      { primary: '#ffecd2', secondary: '#fcb69f', accent: '#fff5e6' },
+                    ];
+                    const colorScheme = colors[index % colors.length];
+
+                    return (
+                    <div key={quiz.id} className="quiz-card" style={{ '--card-primary': colorScheme.primary, '--card-secondary': colorScheme.secondary, '--card-accent': colorScheme.accent }}>
                       <div
                         className="quiz-card-body"
                         onClick={() => navigate(`/teacher/quiz/${quiz.id}`, { state: { quiz } })}
@@ -190,14 +204,16 @@ function TeacherDashboard() {
                             </button>
                             <button onClick={(e) => {
                               e.stopPropagation();
-                              navigator.clipboard.writeText(quiz.codigo_acceso);
-                              showToast('Código copiado al portapapeles', 'success');
+                              // Generar link completo para compartir
+                              const linkCompleto = `${window.location.origin}/student/quiz/${quiz.codigo_acceso}`;
+                              navigator.clipboard.writeText(linkCompleto);
+                              showToast('Link copiado al portapapeles', 'success');
                             }}>
-                              📋 Copiar código
+                              📋 Compartir link
                             </button>
                             <button onClick={(e) => {
                               e.stopPropagation();
-                              showToast('Próximamente: Vista de estadísticas', 'info');
+                              navigate(`/teacher/quiz/${quiz.id}/dashboard`);
                             }}>
                               📊 Ver dashboard
                             </button>
@@ -205,8 +221,8 @@ function TeacherDashboard() {
                         )}
                       </div>
                     </div>
-                  ))
-                )}
+                  );
+                }))}
               </div>
             </>
           )}

@@ -54,6 +54,11 @@ function App() {
           path="/student/dashboard"
           element={<StudentDashboard />}
         />
+        {/* Ruta para acceder a un quiz por código - sin necesidad de login */}
+        <Route
+          path="/student/quiz/:code"
+          element={<StudentDashboard />}
+        />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>

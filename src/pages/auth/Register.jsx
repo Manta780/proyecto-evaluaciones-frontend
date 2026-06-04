@@ -36,7 +36,7 @@ function Register() {
       console.log('✓ Usuario creado en Firebase:', firebaseUid);
 
       // Registrar en PostgreSQL (mismo formato que tu código)
-      const registerResponse = await fetch('http://127.0.0.1:8000/register/', {
+      const registerResponse = await fetch('https://proyecto-evaluaciones.vercel.app/register/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

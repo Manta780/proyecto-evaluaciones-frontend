@@ -41,7 +41,7 @@ function Login() {
       console.log('✓ Usuario logueado en Firebase:', firebaseUid);
 
       // Obtener perfil desde PostgreSQL usando el endpoint del usuario
-      const profileResponse = await fetch(`http://127.0.0.1:8000/register/firebase/${firebaseUid}`);
+      const profileResponse = await fetch(`https://proyecto-evaluaciones.vercel.app/register/firebase/${firebaseUid}`);
 
       if (!profileResponse.ok) {
         // Verificar si es error 404 (no existe) u otro error

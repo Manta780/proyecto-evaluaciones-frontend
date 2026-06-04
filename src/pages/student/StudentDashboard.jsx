@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useQuizData } from '../../hooks/useQuizData';
+import { useNavigate, useParams } from 'react-router-dom';
+import { quizAPI } from '../../services/api';
 import './StudentDashboard.css';
 
 function StudentDashboard() {
   const navigate = useNavigate();
-  const { getQuizByCode } = useQuizData();
+  const { code: codeParam } = useParams();
 
-  const [vista, setVista] = useState('codigo'); // codigo, nombre, quiz, resultados
+  const [vista, setVista] = useState('loading'); // loading, codigo, nombre, quiz, resultados
   const [codigo, setCodigo] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -17,27 +17,80 @@ function StudentDashboard() {
   const [respuestas, setRespuestas] = useState({});
   const [resultados, setResultados] = useState(null);
 
-  // Buscar quiz por código
-  const buscarQuiz = () => {
-    if (!codigo.trim()) {
+  // Cargar quiz por código de URL al iniciar
+  useEffect(() => {
+    if (codeParam) {
+      // Si viene código en la URL, buscar directamente
+      buscarQuizPorCodigo(codeParam);
+    } else {
+      // Si no hay código, mostrar vista de código manual
+      setVista('codigo');
+    }
+  }, [codeParam]);
+
+  // Buscar quiz por código (desde URL o input manual)
+  const buscarQuizPorCodigo = async (codigoBusqueda) => {
+    if (!codigoBusqueda?.trim()) {
       setError('Por favor ingresa un código de quiz.');
       return;
     }
     setLoading(true);
     setError('');
 
-    // Simular búsqueda
-    setTimeout(() => {
-      const quizEncontrado = getQuizByCode(codigo.trim());
-      if (quizEncontrado) {
-        setQuiz(quizEncontrado);
+    try {
+      const response = await quizAPI.getQuizByCode(codigoBusqueda.trim());
+
+      if (response.data) {
+        // Mapear datos del backend al formato del frontend
+        const quizData = response.data;
+        console.log('📥 Datos crudos del backend:', quizData);
+
+        // Verificar la estructura de las preguntas
+        const rawQuestions = quizData.questions || quizData.preguntas || quizData.items || [];
+        console.log('📝 Preguntas crudas:', rawQuestions);
+
+        const quizMapeado = {
+          id: quizData.id,
+          titulo: quizData.title || quizData.titulo || 'Quiz sin título',
+          descripcion: quizData.description || quizData.descripcion,
+          codigo: quizData.access_code || quizData.codigo_acceso,
+          preguntas: rawQuestions.map((preg, idx) => {
+            // El backend usa: statement para la pregunta, options para las opciones
+            const textoPregunta = preg.statement || preg.pregunta || preg.question_text || preg.pregunta_text || preg.question || 'Pregunta sin texto';
+            const opcionesRaw = preg.options || preg.opciones || preg.answers || [];
+
+            console.log(`Pregunta ${idx + 1}:`, { textoPregunta, opcionesRaw });
+
+            return {
+              id: preg.id || idx + 1,
+              pregunta: textoPregunta,
+              opciones: opcionesRaw,
+              // El backend no envía la respuesta correcta al estudiante
+              // Se deja vacío para que no se pueda hacer trampas
+              respuesta_correcta: '',
+            };
+          }),
+        };
+        console.log('✅ Quiz mapeado:', quizMapeado);
+        setQuiz(quizMapeado);
+        setCodigo(codigoBusqueda);
         setVista('nombre');
-        setLoading(false);
-      } else {
-        setError('Código de quiz no encontrado. Verifica e intenta nuevamente.');
-        setLoading(false);
       }
-    }, 500);
+    } catch (err) {
+      console.error('Error al buscar quiz:', err);
+      setError('Código de quiz no encontrado. Verifica e intenta nuevamente.');
+      if (codeParam) {
+        // Si falló desde URL, redirigir al input manual
+        setVista('codigo');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Buscar quiz manualmente (desde input)
+  const buscarQuiz = () => {
+    buscarQuizPorCodigo(codigo);
   };
 
   const handleKeyDown = (e) => {
@@ -76,28 +129,56 @@ function StudentDashboard() {
     }
   };
 
-  // Enviar quiz
-  const enviarQuiz = () => {
-    let aciertos = 0;
-    const detalles = quiz.preguntas.map((preg, idx) => {
-      const respuestaEstudiante = respuestas[idx];
-      const esCorrecta = respuestaEstudiante === preg.respuesta_correcta;
-      if (esCorrecta) aciertos++;
-      return {
-        pregunta: preg.pregunta,
-        respuestaEstudiante,
-        respuestaCorrecta: preg.respuesta_correcta,
-        esCorrecta,
-      };
-    });
+  // Enviar quiz al backend
+  const enviarQuiz = async () => {
+    setLoading(true);
 
-    setResultados({
-      total: quiz.preguntas.length,
-      aciertos,
-      porcentaje: Math.round((aciertos / quiz.preguntas.length) * 100),
-      detalles,
-    });
-    setVista('resultados');
+    try {
+      // Preparar las respuestas en el formato que espera el backend
+      const respuestasFormateadas = quiz.preguntas.map((preg, idx) => ({
+        question_id: String(preg.id),
+        given_answer: respuestas[idx] || '',
+      }));
+
+      const payload = {
+        student_name: nombre,
+        respuestas: respuestasFormateadas,
+      };
+
+      console.log('📤 Enviando respuestas:', payload);
+
+      const response = await quizAPI.submitQuiz(codigo, payload);
+      const resultadoBackend = response.data;
+
+      console.log('📥 Resultado del backend:', resultadoBackend);
+
+      // Mapear los resultados del backend
+      const resultadosRaw = resultadoBackend.results || resultadoBackend.resultados || [];
+
+      // Contar respuestas correctas
+      const aciertosReales = resultadosRaw.filter(r => r.is_correct).length;
+      const totalPreguntas = resultadosRaw.length;
+
+      const detalles = resultadosRaw.map((r) => ({
+        pregunta: r.statement || r.pregunta,
+        respuestaEstudiante: r.given_answer,
+        respuestaCorrecta: r.correct_answer,
+        esCorrecta: r.is_correct,
+      }));
+
+      setResultados({
+        total: totalPreguntas,
+        aciertos: aciertosReales,
+        porcentaje: resultadoBackend.total_score || resultadoBackend.percentage || resultadoBackend.porcentaje || Math.round((aciertosReales / totalPreguntas) * 100),
+        detalles: detalles,
+      });
+      setVista('resultados');
+    } catch (err) {
+      console.error('Error al enviar quiz:', err);
+      setError('Error al enviar las respuestas. Intenta de nuevo.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Reiniciar todo
@@ -115,6 +196,18 @@ function StudentDashboard() {
   const cerrarSesion = () => {
     navigate('/');
   };
+
+  // Loading inicial
+  if (vista === 'loading') {
+    return (
+      <div className="student-container">
+        <div className="student-card">
+          <div className="loading-spinner"></div>
+          <p>Cargando quiz...</p>
+        </div>
+      </div>
+    );
+  }
 
   // Vista: Código
   if (vista === 'codigo') {
@@ -233,9 +326,9 @@ function StudentDashboard() {
             </div>
           </div>
 
-          <div className="question-card">
+          <div className="question-card1">
             <span className="question-number">Pregunta {preguntaActual + 1}</span>
-            <p className="question-text">{pregunta.pregunta}</p>
+            <p className="question-texto">{pregunta.pregunta}</p>
 
             <div className="options-list">
               {opciones.map((op, idx) => (
@@ -272,9 +365,9 @@ function StudentDashboard() {
               <button
                 className="nav-btn primary"
                 onClick={enviarQuiz}
-                disabled={Object.keys(respuestas).length < quiz.preguntas.length}
+                disabled={loading || Object.keys(respuestas).length < quiz.preguntas.length}
               >
-                Enviar Quiz ✓
+                {loading ? 'Enviando...' : 'Enviar Quiz ✓'}
               </button>
             )}
           </div>

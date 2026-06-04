@@ -4,7 +4,7 @@ import axios from 'axios';
 import { useToast, ToastContainer } from '../../components/Toast';
 import './QuizDetail.css';
 
-const API_URL = 'http://127.0.0.1:8000';
+const API_URL = 'https://proyecto-evaluaciones.vercel.app';
 
 function QuizDetail() {
   const navigate = useNavigate();

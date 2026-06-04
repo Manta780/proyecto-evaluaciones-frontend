@@ -100,24 +100,30 @@
   position: fixed;
   top: 20px;
   right: 20px;
-  background-color: #1a1d27;
-  border: 1px solid #2a2d3e;
-  color: #aaa;
-  padding: 10px 20px;
-  border-radius: 8px;
+  background: linear-gradient(135deg, #696b78 0%, #373a4a 100%);
+  border: none;
+  color: #fff;
+  padding: 12px 24px;
+  border-radius: 12px;
   font-size: 14px;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   z-index: 102;
   display: flex;
   align-items: center;
   gap: 8px;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
 }
 
 .logout-btn:hover {
-  background-color: #dc2626;
-  border-color: #dc2626;
-  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
+  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+}
+
+.logout-btn:active {
+  transform: translateY(0);
 }
 
 .sidebar-logo span {
@@ -240,68 +246,147 @@
   font-size: 15px;
 }
 
-/* Tarjeta de quiz */
+/* Tarjeta de quiz - Liquid Glass Effect */
 .quiz-card {
-  background-color: #1a1d27;
-  border: 1px solid #2a2d3e;
-  border-radius: 12px;
-  padding: 20px;
+  /* Usar variables CSS definidas en el componente */
+  --card-primary: #667eea;
+  --card-secondary: #764ba2;
+  --card-accent: #a8edea;
+
+  background: linear-gradient(
+    135deg,
+    rgba(var(--card-primary-rgb, 102, 126, 234), 0.15) 0%,
+    rgba(var(--card-secondary-rgb, 118, 75, 162), 0.1) 100%
+  );
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 20px;
+  padding: 24px;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   cursor: pointer;
-  transition: border-color 0.2s;
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
   position: relative;
+  overflow: hidden;
+}
+
+/* Fondo líquido/gradiente */
+.quiz-card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(
+    circle at 30% 30%,
+    rgba(255, 255, 255, 0.15) 0%,
+    transparent 50%
+  );
+  animation: liquid-move 8s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.quiz-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--card-accent),
+    transparent
+  );
+  opacity: 0.5;
+}
+
+@keyframes liquid-move {
+  0%, 100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  25% {
+    transform: translate(5%, 5%) rotate(5deg);
+  }
+  50% {
+    transform: translate(-5%, 10%) rotate(-5deg);
+  }
+  75% {
+    transform: translate(-10%, -5%) rotate(3deg);
+  }
 }
 
 .quiz-card:hover {
-  border-color: #7c6af7;
+  transform: translateY(-6px) scale(1.02);
+  box-shadow:
+    0 20px 40px rgba(0, 0, 0, 0.3),
+    0 0 60px rgba(var(--card-primary-rgb, 102, 126, 234), 0.2);
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.quiz-card:hover::before {
+  animation-duration: 4s;
 }
 
 .quiz-card-body {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
   flex: 1;
+  position: relative;
+  z-index: 1;
 }
 
 .quiz-title {
-  font-size: 16px;
-  font-weight: 600;
-  color: #e0e0e0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #ffffff;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  margin: 0;
 }
 
 .quiz-desc {
   font-size: 13px;
-  color: #888;
-  line-height: 1.4;
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.5;
+  margin: 0;
 }
 
 .quiz-count {
   font-size: 12px;
-  color: #7c6af7;
-  font-weight: 500;
+  font-weight: 600;
+  color: var(--card-accent, #a8edea);
+  background: rgba(255, 255, 255, 0.1);
+  padding: 4px 10px;
+  border-radius: 20px;
+  display: inline-block;
 }
 
 .quiz-meta {
   display: flex;
   gap: 12px;
-  margin-top: 4px;
+  margin-top: 8px;
   align-items: center;
 }
 
 .quiz-code {
   font-size: 12px;
-  color: #4ecdc4;
+  color: var(--card-accent, #a8edea);
 }
 
 .quiz-code code {
-  background: rgba(78, 205, 196, 0.15);
-  padding: 2px 8px;
-  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(4px);
+  padding: 4px 10px;
+  border-radius: 6px;
   font-family: monospace;
   font-weight: 600;
   letter-spacing: 1px;
+  color: #fff;
 }
 
 /* Menú de 3 puntos */

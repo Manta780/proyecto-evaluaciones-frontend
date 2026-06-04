@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { quizAPI } from '../../services/api';
 import './QuizDashboard.css';
 
 function useIsMobile() {
@@ -12,128 +13,7 @@ function useIsMobile() {
   return isMobile;
 }
 
-const datosDemo = {
-  1: {
-    titulo: 'Quiz de Historia',
-    estudiantesRespondieron: 25,
-    promedioAciertos: 72,
-    tiempoPromedio: '12 min',
-    preguntas: [
-      {
-        id: 1,
-        texto: '¿En qué año comenzó la Segunda Guerra Mundial?',
-        opciones: [
-          { texto: '1935', respuestas: 2 },
-          { texto: '1939', respuestas: 18 },
-          { texto: '1941', respuestas: 4 },
-          { texto: '1945', respuestas: 1 },
-        ],
-        correcta: 1,
-        tiempoPromedio: '45 seg',
-      },
-      {
-        id: 2,
-        texto: '¿Quién fue el líder de Alemania Nazi?',
-        opciones: [
-          { texto: 'Mussolini', respuestas: 3 },
-          { texto: 'Hitler', respuestas: 20 },
-          { texto: 'Franco', respuestas: 1 },
-          { texto: 'Stalin', respuestas: 1 },
-        ],
-        correcta: 1,
-        tiempoPromedio: '30 seg',
-      },
-      {
-        id: 3,
-        texto: '¿Qué tratado firmó Alemania al final de la guerra?',
-        opciones: [
-          { texto: 'Versailles', respuestas: 8 },
-          { texto: 'París', respuestas: 5 },
-          { texto: 'Potsdam', respuestas: 10 },
-          { texto: 'Bretton Woods', respuestas: 2 },
-        ],
-        correcta: 2,
-        tiempoPromedio: '90 seg',
-      },
-    ],
-  },
-  2: {
-    titulo: 'Quiz de Matemáticas',
-    estudiantesRespondieron: 18,
-    promedioAciertos: 65,
-    tiempoPromedio: '15 min',
-    preguntas: [
-      {
-        id: 1,
-        texto: '¿Cuánto es 5 + 3 × 2?',
-        opciones: [
-          { texto: '16', respuestas: 4 },
-          { texto: '11', respuestas: 12 },
-          { texto: '13', respuestas: 1 },
-          { texto: '20', respuestas: 1 },
-        ],
-        correcta: 1,
-        tiempoPromedio: '25 seg',
-      },
-      {
-        id: 2,
-        texto: 'Resuelve: 2x + 5 = 15',
-        opciones: [
-          { texto: 'x = 10', respuestas: 2 },
-          { texto: 'x = 5', respuestas: 14 },
-          { texto: 'x = 7', respuestas: 1 },
-          { texto: 'x = 4', respuestas: 1 },
-        ],
-        correcta: 1,
-        tiempoPromedio: '60 seg',
-      },
-    ],
-  },
-  3: {
-    titulo: 'Quiz de Biología',
-    estudiantesRespondieron: 30,
-    promedioAciertos: 58,
-    tiempoPromedio: '18 min',
-    preguntas: [
-      {
-        id: 1,
-        texto: '¿Cuál es la unidad básica de la vida?',
-        opciones: [
-          { texto: 'Átomo', respuestas: 1 },
-          { texto: 'Molécula', respuestas: 3 },
-          { texto: 'Célula', respuestas: 24 },
-          { texto: 'Tejido', respuestas: 2 },
-        ],
-        correcta: 2,
-        tiempoPromedio: '20 seg',
-      },
-      {
-        id: 2,
-        texto: '¿Qué organelo produce energía?',
-        opciones: [
-          { texto: 'Núcleo', respuestas: 4 },
-          { texto: 'Mitocondria', respuestas: 22 },
-          { texto: 'Ribosoma', respuestas: 2 },
-          { texto: 'Lisosoma', respuestas: 2 },
-        ],
-        correcta: 1,
-        tiempoPromedio: '35 seg',
-      },
-      {
-        id: 3,
-        texto: '¿Cómo se llama la división celular normal?',
-        opciones: [
-          { texto: 'Mitosis', respuestas: 18 },
-          { texto: 'Meiosis', respuestas: 8 },
-          { texto: 'Fisión', respuestas: 3 },
-          { texto: 'Citocinesis', respuestas: 1 },
-        ],
-        correcta: 0,
-        tiempoPromedio: '55 seg',
-      },
-    ],
-  },
-};
+
 
 function DonutChart({ opciones, correcta }) {
   const total = opciones.reduce((acc, op) => acc + op.respuestas, 0);
@@ -189,18 +69,22 @@ function DonutChart({ opciones, correcta }) {
 function QuestionCard({ pregunta, numero }) {
   const total = pregunta.opciones.reduce((acc, op) => acc + op.respuestas, 0);
   const correctas = pregunta.opciones[pregunta.correcta]?.respuestas || 0;
-  const porcentajeAciertos = total > 0 ? Math.round((correctas / total) * 100) : 0;
+  // Usar datos del backend si están disponibles, sino calcular
+  const porcentajeAciertos = pregunta.tasaAcierto ?? (total > 0 ? Math.round((correctas / total) * 100) : 0);
 
   const getDifficultyClass = () => {
+    if (pregunta.dificultad) {
+      if (pregunta.dificultad === 'Fácil') return 'facil';
+      if (pregunta.dificultad === 'Medio') return 'medio';
+      return 'dificil';
+    }
     if (porcentajeAciertos >= 70) return 'facil';
     if (porcentajeAciertos >= 40) return 'medio';
     return 'dificil';
   };
 
   const getDifficultyText = () => {
-    if (porcentajeAciertos >= 70) return 'Fácil';
-    if (porcentajeAciertos >= 40) return 'Medio';
-    return 'Difícil';
+    return pregunta.dificultad || (porcentajeAciertos >= 70 ? 'Fácil' : porcentajeAciertos >= 40 ? 'Medio' : 'Difícil');
   };
 
   return (
@@ -257,17 +141,91 @@ function QuizDashboard() {
   const isMobile = useIsMobile();
   const [loading, setLoading] = useState(true);
   const [quizData, setQuizData] = useState(null);
+  const [studentsData, setStudentsData] = useState(null);
+  const [quizTitle, setQuizTitle] = useState('');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [vistaActual, setVistaActual] = useState('preguntas'); // 'preguntas' o 'estudiantes'
 
   const quizId = parseInt(location.pathname.split('/')[3]) || 1;
 
   useEffect(() => {
-    setLoading(true);
-    setTimeout(() => {
-      setQuizData(datosDemo[quizId] || datosDemo[1]);
-      setLoading(false);
-    }, 600);
-  }, [quizId]);
+    const fetchQuizResults = async () => {
+      setLoading(true);
+      console.log('🔍 Obteniendo resultados para quiz ID:', quizId);
+      console.log('🔍 URL completa:', `http://localhost:8000/quiz/${quizId}/results`);
+
+      try {
+        const response = await quizAPI.getQuizResults(quizId);
+        const data = response.data;
+
+        console.log('📥 Resultados del quiz:', data);
+
+        // Mapear datos del backend al formato del componente
+        const preguntasMapeadas = (data.preguntas || []).map((preg) => ({
+          id: parseInt(preg.question_id),
+          texto: preg.statement,
+          opciones: (preg.distribucion_opciones || []).map((op) => ({
+            texto: op.opcion,
+            respuestas: op.cantidad,
+          })),
+          correcta: preg.distribucion_opciones?.findIndex(op => op.es_correcta) || 0,
+          tiempoPromedio: `${preg.tiempo_promedio_segundos || 0} seg`,
+          tasaAcierto: preg.tasa_acierto,
+          dificultad: preg.dificultad,
+        }));
+
+        // Calcular promedio de aciertos
+        const promedioAciertos = preguntasMapeadas.length > 0
+          ? Math.round(preguntasMapeadas.reduce((acc, p) => acc + (p.tasaAcierto || 0), 0) / preguntasMapeadas.length)
+          : 0;
+
+        setQuizData({
+          titulo: quizTitle || `Quiz #${quizId}`,
+          estudiantesRespondieron: data.total_estudiantes || 0,
+          promedioAciertos: promedioAciertos,
+          tiempoPromedio: '-- min',
+          preguntas: preguntasMapeadas,
+        });
+      } catch (err) {
+        console.error('❌ Error al obtener resultados:', err);
+        console.error('Response:', err.response?.data);
+        console.error('Status:', err.response?.status);
+
+        // En caso de error, mostrar mensaje
+        setQuizData({
+          titulo: quizTitle || `Quiz #${quizId}`,
+          estudiantesRespondieron: 0,
+          promedioAciertos: 0,
+          tiempoPromedio: '-- min',
+          preguntas: [],
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchQuizResults();
+
+    // Cargar datos de estudiantes
+    const fetchStudentsScores = async () => {
+      try {
+        const response = await quizAPI.getStudentsScores(quizId);
+        const data = response.data;
+        console.log('📥 Datos de estudiantes:', data);
+        setStudentsData(data);
+        // Guardar el título del quiz
+        if (data.quiz_title) {
+          setQuizTitle(data.quiz_title);
+          // Actualizar el título también en quizData si ya está cargado
+          setQuizData(prev => prev ? { ...prev, titulo: data.quiz_title } : null);
+        }
+      } catch (err) {
+        console.error('Error al obtener estudiantes:', err);
+      }
+    };
+
+    fetchStudentsScores();
+  }, [quizId, quizTitle]);
 
   const cerrarSidebar = () => {
     if (isMobile && !sidebarCollapsed) {
@@ -313,8 +271,21 @@ function QuizDashboard() {
         </div>
         <nav className="sidebar-nav">
           <button
+            className={`sidebar-btn ${vistaActual === 'preguntas' ? 'active' : ''}`}
+            onClick={() => setVistaActual('preguntas')}
+          >
+            📊 Resultados
+          </button>
+          <button
+            className={`sidebar-btn ${vistaActual === 'estudiantes' ? 'active' : ''}`}
+            onClick={() => setVistaActual('estudiantes')}
+          >
+            👥 Estudiantes
+          </button>
+          <button
             className="sidebar-btn"
             onClick={() => navigate('/teacher/dashboard')}
+            style={{ marginTop: 'auto' }}
           >
             ← Volver
           </button>
@@ -338,39 +309,110 @@ function QuizDashboard() {
             <p className="dashboard-subtitle">Analytics del quiz</p>
           </div>
 
-          <div className="stats-grid">
-            <div className="stat-card">
-              <span className="stat-card-value">{quizData.estudiantesRespondieron}</span>
-              <span className="stat-card-label">Estudiantes</span>
+          {/* Vista: Resultados por pregunta */}
+          {vistaActual === 'preguntas' && (
+            <div className="stats-grid">
+              <div className="stat-card">
+                <span className="stat-card-value">{quizData.estudiantesRespondieron}</span>
+                <span className="stat-card-label">Estudiantes</span>
+              </div>
+              <div className="stat-card">
+                <span className="stat-card-value">{quizData.promedioAciertos}%</span>
+                <span className="stat-card-label">Aciertos promedio</span>
+              </div>
+              <div className="stat-card">
+                <span className="stat-card-value">{quizData.tiempoPromedio}</span>
+                <span className="stat-card-label">Tiempo promedio</span>
+              </div>
             </div>
-            <div className="stat-card">
-              <span className="stat-card-value">{quizData.promedioAciertos}%</span>
-              <span className="stat-card-label">Aciertos promedio</span>
+          )}
+          {vistaActual === 'preguntas' && (
+            <div className="questions-section">
+              <h2 className="section-title">Análisis por pregunta</h2>
+              {quizData.preguntas.length === 0 ? (
+                <div className="empty-state">
+                  <p>No hay preguntas en este quiz</p>
+                </div>
+              ) : (
+                <div className="questions-list">
+                  {quizData.preguntas.map((pregunta, idx) => (
+                    <QuestionCard
+                      key={pregunta.id}
+                      pregunta={pregunta}
+                      numero={idx + 1}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
-            <div className="stat-card">
-              <span className="stat-card-value">{quizData.tiempoPromedio}</span>
-              <span className="stat-card-label">Tiempo promedio</span>
-            </div>
-          </div>
+          )}
 
-          <div className="questions-section">
-            <h2 className="section-title">Análisis por pregunta</h2>
-            {quizData.preguntas.length === 0 ? (
-              <div className="empty-state">
-                <p>No hay preguntas en este quiz</p>
-              </div>
-            ) : (
-              <div className="questions-list">
-                {quizData.preguntas.map((pregunta, idx) => (
-                  <QuestionCard
-                    key={pregunta.id}
-                    pregunta={pregunta}
-                    numero={idx + 1}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
+          {/* Vista: Lista de estudiantes */}
+          {vistaActual === 'estudiantes' && (
+            <div className="students-section">
+              <h2 className="section-title">Lista de estudiantes</h2>
+
+              {studentsData?.estudiantes?.length === 0 ? (
+                <div className="empty-state">
+                  <p>No hay estudiantes que hayan realizado este quiz</p>
+                </div>
+              ) : (
+                <>
+                  {/* Stats de estudiantes */}
+                  <div className="stats-grid">
+                    <div className="stat-card">
+                      <span className="stat-card-value">{studentsData?.total_estudiantes || 0}</span>
+                      <span className="stat-card-label">Total estudiantes</span>
+                    </div>
+                    <div className="stat-card">
+                      <span className="stat-card-value">{studentsData?.promedio_grupo || 0}%</span>
+                      <span className="stat-card-label">Promedio grupo</span>
+                    </div>
+                    <div className="stat-card">
+                      <span className="stat-card-value">{studentsData?.aprobados || 0}</span>
+                      <span className="stat-card-label">Aprobados</span>
+                    </div>
+                    <div className="stat-card">
+                      <span className="stat-card-value">{studentsData?.reprobados || 0}</span>
+                      <span className="stat-card-label">Reprobados</span>
+                    </div>
+                  </div>
+
+                  {/* Tabla de estudiantes */}
+                  <div className="students-table-container">
+                    <table className="students-table">
+                      <thead>
+                        <tr>
+                          <th>#</th>
+                          <th>Estudiante</th>
+                          <th>Nota</th>
+                          <th>Estado</th>
+                          <th>Correctas</th>
+                          <th>Incorrectas</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {studentsData?.estudiantes?.map((estudiante, idx) => (
+                          <tr key={estudiante.attempt_id}>
+                            <td>{idx + 1}</td>
+                            <td>{estudiante.student_name}</td>
+                            <td className="score-cell">{estudiante.total_score}%</td>
+                            <td>
+                              <span className={`status-badge ${estudiante.aprobado ? 'aprobado' : 'reprobado'}`}>
+                                {estudiante.aprobado ? '✓ Aprobado' : '✗ Reprobado'}
+                              </span>
+                            </td>
+                            <td>{estudiante.respuestas_correctas}</td>
+                            <td>{estudiante.respuestas_incorrectas}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
         </div>
       </main>
     </div>

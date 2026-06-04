@@ -229,7 +229,7 @@
 }
 
 .question-text {
-  font-size: 16px;
+  font-size:20px;
   color: #e0e0e0;
   margin: 0 0 20px 0;
   line-height: 1.5;
@@ -319,7 +319,7 @@
 .legend-text {
   flex: 1;
   font-size: 14px;
-  color: #ccc;
+  color: #ffffff;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -328,7 +328,7 @@
 .legend-count {
   font-size: 14px;
   font-weight: 600;
-  color: #888;
+  color: #ffffff;
 }
 
 /* Stats Section */
@@ -347,7 +347,7 @@
 
 .stat-label {
   font-size: 13px;
-  color: #888;
+  color: #ffffff;
 }
 
 .progress-bar {
@@ -373,7 +373,7 @@
 .stat-time {
   font-size: 20px;
   font-weight: 700;
-  color: #e0e0e0;
+  color: #ffffff;
 }
 
 /* Loading & Empty States */
@@ -423,6 +423,70 @@
 
 .empty-state button:hover {
   background-color: #6a5ae8;
+}
+
+/* Students Section */
+.students-section {
+  padding: 0 24px 24px;
+}
+
+.students-table-container {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  margin-top: 24px;
+}
+
+.students-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.students-table thead {
+  background: #f8f9fa;
+}
+
+.students-table th {
+  padding: 14px 16px;
+  text-align: left;
+  font-weight: 600;
+  color: #555;
+  font-size: 13px;
+  text-transform: uppercase;
+}
+
+.students-table td {
+  padding: 14px 16px;
+  border-top: 1px solid #eee;
+  color: #333;
+}
+
+.students-table tbody tr:hover {
+  background: #f9f9f9;
+}
+
+.score-cell {
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.status-badge.aprobado {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.status-badge.reprobado {
+  background: #fee2e2;
+  color: #991b1b;
 }
 
 /* Responsive */

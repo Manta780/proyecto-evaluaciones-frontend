@@ -6,7 +6,7 @@ import './CreateQuiz.css';
 import { getAuth } from 'firebase/auth';
 
 
-const API_URL = 'http://127.0.0.1:8000';
+const API_URL = 'https://proyecto-evaluaciones.vercel.app';
 
 function CreateQuiz() {
   const navigate = useNavigate();
