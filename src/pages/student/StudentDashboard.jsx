@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback  } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { quizAPI } from '../../services/api';
 import './StudentDashboard.css';
@@ -17,19 +17,8 @@ function StudentDashboard() {
   const [respuestas, setRespuestas] = useState({});
   const [resultados, setResultados] = useState(null);
 
-  // Cargar quiz por código de URL al iniciar
-  useEffect(() => {
-    if (codeParam) {
-      // Si viene código en la URL, buscar directamente
-      buscarQuizPorCodigo(codeParam);
-    } else {
-      // Si no hay código, mostrar vista de código manual
-      setVista('codigo');
-    }
-  }, [codeParam]);
-
   // Buscar quiz por código (desde URL o input manual)
-  const buscarQuizPorCodigo = async (codigoBusqueda) => {
+  const buscarQuizPorCodigo = useCallback(async (codigoBusqueda) => {
     if (!codigoBusqueda?.trim()) {
       setError('Por favor ingresa un código de quiz.');
       return;
@@ -86,8 +75,21 @@ function StudentDashboard() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [codeParam]);
 
+  // Cargar quiz por código de URL al iniciar
+  useEffect(() => {
+    if (codeParam) {
+      // Si viene código en la URL, buscar directamente
+      buscarQuizPorCodigo(codeParam);
+    } else {
+      // Si no hay código, mostrar vista de código manual
+      setVista('codigo');
+    }
+  }, [codeParam , buscarQuizPorCodigo]);
+
+  // Buscar quiz por código (desde URL o input manual)
+  
   // Buscar quiz manualmente (desde input)
   const buscarQuiz = () => {
     buscarQuizPorCodigo(codigo);

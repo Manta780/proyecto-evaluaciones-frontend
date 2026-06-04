@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
 import app from '../../services/firebase';
-import { registerAPI } from '../../services/api';
 import './Register.css';
 
 console.log('Firebase App inicializada:', app.name);
