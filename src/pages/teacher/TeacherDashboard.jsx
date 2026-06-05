@@ -178,22 +178,38 @@ function TeacherDashboard() {
                     const colorScheme = colors[index % colors.length];
 
                     return (
-                    <div key={quiz.id} className="quiz-card" style={{ '--card-primary': colorScheme.primary, '--card-secondary': colorScheme.secondary, '--card-accent': colorScheme.accent }}>
-                      <div
-                        className="quiz-card-body"
-                        onClick={() => navigate(`/teacher/quiz/${quiz.id}`, { state: { quiz } })}
-                      >
-                        <h3 className="quiz-title">{quiz.titulo}</h3>
-                        <p className="quiz-desc">{quiz.descripcion || 'Sin descripción'}</p>
-                        <span className="quiz-count">{quiz.question_count} preguntas</span>
-                      </div>
-                      <div className="quiz-card-actions" onClick={(e) => e.stopPropagation()}>
-                        <button
-                          className="menu-btn"
-                          onClick={(e) => toggleMenu(quiz.id, e)}
+                      <div key={quiz.id} className="quiz-card-wrapper">
+
+                        <div
+                          className="quiz-card"
+                          style={{
+                            '--card-primary': colorScheme.primary,
+                            '--card-secondary': colorScheme.secondary,
+                            '--card-accent': colorScheme.accent
+                          }}
                         >
-                          ⋮
-                        </button>
+                          <div
+                            className="quiz-card-body"
+                            onClick={() => navigate(`/teacher/quiz/${quiz.id}`, { state: { quiz } })}
+                          >
+                            <h3 className="quiz-title">{quiz.titulo}</h3>
+                            <p className="quiz-desc">{quiz.descripcion || 'Sin descripción'}</p>
+                            <span className="quiz-count">{quiz.question_count} preguntas</span>
+                          </div>
+
+                          <div
+                            className="quiz-card-actions"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <button
+                              className="menu-btn"
+                              onClick={(e) => toggleMenu(quiz.id, e)}
+                            >
+                              ⋮
+                            </button>
+                          </div>
+                        </div>
+
                         {menuAbierto === quiz.id && (
                           <div className="dropdown-menu">
                             <button onClick={(e) => {
@@ -202,15 +218,18 @@ function TeacherDashboard() {
                             }}>
                               🗑️ Borrar quiz
                             </button>
+
                             <button onClick={(e) => {
                               e.stopPropagation();
-                              // Generar link completo para compartir
-                              const linkCompleto = `${window.location.origin}/student/quiz/${quiz.codigo_acceso}`;
+                              const linkCompleto =
+                                `${window.location.origin}/student/quiz/${quiz.codigo_acceso}`;
+
                               navigator.clipboard.writeText(linkCompleto);
                               showToast('Link copiado al portapapeles', 'success');
                             }}>
                               📋 Compartir link
                             </button>
+
                             <button onClick={(e) => {
                               e.stopPropagation();
                               navigate(`/teacher/quiz/${quiz.id}/dashboard`);
@@ -220,7 +239,6 @@ function TeacherDashboard() {
                           </div>
                         )}
                       </div>
-                    </div>
                   );
                 }))}
               </div>
