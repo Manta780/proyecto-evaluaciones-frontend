@@ -152,13 +152,19 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  box-shadow: 0 4px 15px rgba(67, 233, 123, 0.4);
+  box-shadow: 0 4px 15px rgba(233, 67, 67, 0.4);
+}
+
+.logout-icon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
 }
 
 .logout-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(67, 233, 123, 0.5);
-  background: linear-gradient(135deg, #38f9d7 0%, #43e97b 100%);
+  box-shadow: 0 8px 25px rgba(233, 89, 67, 0.5);
+  background: linear-gradient(135deg, #f9a938 0%, #9c3a28 100%);
   color: #fff;
 }
 

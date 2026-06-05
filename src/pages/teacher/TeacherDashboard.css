@@ -72,6 +72,8 @@
   justify-content: space-between;
   padding-bottom: 16px;
   border-bottom: 1px solid #2a2d3e;
+
+  
 }
 
 /* Botón cerrar sidebar en móvil */
@@ -98,7 +100,7 @@
 /* Botón logout */
 .logout-btn {
   position: fixed;
-  top: 20px;
+  top: 16px;
   right: 20px;
   background: linear-gradient(135deg, #696b78 0%, #373a4a 100%);
   border: none;
@@ -113,13 +115,20 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 4px 15px rgba(255, 39, 39, 0.4);
+  
+}
+
+.logout-icon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
 }
 
 .logout-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
-  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+  box-shadow: 0 8px 25px rgba(234, 124, 102, 0.5);
+  background: linear-gradient(135deg, #764ba2 0%, #ea7566 100%);
 }
 
 .logout-btn:active {

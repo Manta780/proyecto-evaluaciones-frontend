@@ -7,7 +7,9 @@ function Landing() {
   return (
     <div className="landing-container">
       <header className="landing-header">
-        <div className="landing-logo">QuizAI</div>
+        <div className="landing-logo">
+        <img src="/logoEmpre.png" alt="QuizAI Logo" className="logo-image" />
+        </div>
         <div className="landing-auth-buttons">
           <button
             className="landing-btn-outline"

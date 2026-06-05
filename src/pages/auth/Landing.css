@@ -10,7 +10,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px 40px;
+  padding: 7px 40px;
   position: absolute;
   top: 0;
   left: 0;
@@ -22,6 +22,19 @@
   font-weight: 700;
   color: #7c6af7;
 }
+
+.landing-logo {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.logo-image {
+  width: 80px; 
+  height: auto;
+  object-fit: contain;
+}
+
 
 .landing-auth-buttons {
   display: flex;

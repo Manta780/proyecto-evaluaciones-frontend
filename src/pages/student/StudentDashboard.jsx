@@ -215,9 +215,14 @@ function StudentDashboard() {
   if (vista === 'codigo') {
     return (
       <div className="student-container">
-        <button className="logout-btn" onClick={cerrarSesion}>
-          🚪 Cerrar sesión
-        </button>
+      <button className="logout-btn" onClick={cerrarSesion}>
+        <img
+          src="/cerrar.png"
+          alt="Cerrar sesión"
+          className="logout-icon"
+        />
+  
+      </button>
         <div className="student-card">
           <h1 className="student-logo">QuizAI</h1>
           <p className="student-subtitle">Ingresa el código para comenzar</p>
@@ -258,9 +263,14 @@ function StudentDashboard() {
   if (vista === 'nombre') {
     return (
       <div className="student-container">
-        <button className="logout-btn" onClick={cerrarSesion}>
-          🚪 Cerrar sesión
-        </button>
+      <button className="logout-btn" onClick={cerrarSesion}>
+        <img
+          src="/cerrar.png"
+          alt="Cerrar sesión"
+          className="logout-icon"
+        />
+  
+      </button>
         <div className="name-view">
           <div className="name-card">
             <h2>{quiz?.titulo}</h2>
@@ -308,9 +318,14 @@ function StudentDashboard() {
 
     return (
       <div className="student-container">
-        <button className="logout-btn" onClick={cerrarSesion}>
-          🚪 Cerrar sesión
-        </button>
+      <button className="logout-btn" onClick={cerrarSesion}>
+        <img
+          src="/cerrar.png"
+          alt="Cerrar sesión"
+          className="logout-icon"
+        />
+  
+      </button>
         <div className="quiz-view">
           <div className="quiz-header">
             <h1>{quiz.titulo}</h1>
@@ -388,9 +403,14 @@ function StudentDashboard() {
 
     return (
       <div className="student-container">
-        <button className="logout-btn" onClick={cerrarSesion}>
-          🚪 Cerrar sesión
-        </button>
+      <button className="logout-btn" onClick={cerrarSesion}>
+        <img
+          src="/cerrar.png"
+          alt="Cerrar sesión"
+          className="logout-icon"
+        />
+  
+      </button>
         <div className="results-view">
           <div className="results-card">
             <p className="results-label">Tu puntuación</p>

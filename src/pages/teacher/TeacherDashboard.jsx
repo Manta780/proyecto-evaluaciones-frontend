@@ -95,13 +95,18 @@ function TeacherDashboard() {
 
       {/* Botón cerrar sesión */}
       <button className="logout-btn" onClick={cerrarSesion}>
-        🚪 Cerrar sesión
+        <img
+          src="/cerrar.png"
+          alt="Cerrar sesión"
+          className="logout-icon"
+        />
+  
       </button>
 
       {/* Sidebar */}
       <aside className={`sidebar ${sidebarCollapsed ? 'collapsed' : ''}`}>
         <div className="sidebar-logo">
-          <span>QuizAI</span>
+          <img src="/logoAI.png" alt="QuizAI Logo" className="logo-image" />
           <button
             className="sidebar-toggle"
             onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
